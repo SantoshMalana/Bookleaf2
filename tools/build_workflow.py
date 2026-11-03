@@ -167,5 +167,11 @@ workflow = {
     'tags': [],
 }
 out = ROOT / 'n8n' / 'bookleaf-royalty-summary.json'
+# Optional bonus nodes ship disabled: n8n will not publish a workflow whose nodes lack credentials, and both are
+# switched off in Settings anyway. Enable them (and add their credentials) only if you turn the feature on.
+for n in nodes:
+    if n['name'] in ('Send email (SMTP)', 'Update Bubble Notification Log (Data API)'):
+        n['disabled'] = True
+
 out.write_text(json.dumps(workflow, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
 print(f'wrote {out.relative_to(ROOT)} ({len(nodes)} nodes)')

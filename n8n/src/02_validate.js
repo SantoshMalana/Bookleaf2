@@ -2,7 +2,7 @@
 const { settings, request: r, received_at } = $input.first().json;
 const errors = [];
 const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
-const isDate = (v) => v == null || v === '' || !Number.isNaN(Date.parse(v));
+const isDate = (v) => v == null || v === '' || /^\d{11,}$/.test(String(v).trim()) || !Number.isNaN(Date.parse(v)); // ISO, Bubble text format or epoch ms
 
 if (!r || typeof r !== 'object') errors.push('body must be a JSON object');
 if (!r?.request_id) errors.push('request_id is required (the Notification Log row id)');

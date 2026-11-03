@@ -4,10 +4,11 @@ Assignment 2 of 2. A **Bubble.io** app where authors see their royalties and adm
 
 | | |
 |---|---|
-| **Bubble app (live)** | `<BUBBLE_LIVE_URL>` |
+| **Bubble app (test version, Free plan)** | https://santosh24x.bubbleapps.io/version-test |
+| **Bubble editor** | https://bubble.io/page?id=santosh24x |
 | **n8n workflow export** | [`n8n/bookleaf-royalty-summary.json`](n8n/bookleaf-royalty-summary.json) |
 | **Screen recording (4 min)** | `<VIDEO_URL>` |
-| **Author login** | `ananya.reddy@email.com` / `Author@123` (also: `kavita.deshmukh@email.com`, `farhan.sheikh@email.com`, `priya.sharma@email.com`) |
+| **Author login** | `ananya.reddy@email.com` / `Author@123` (any other dataset author can create an account with their dataset email via *Create my author account*) |
 | **Admin login** | `admin@bookleaf.example` / `Admin@123` |
 
 ---
@@ -98,7 +99,12 @@ Measured on the real model (Groq `gpt-oss-120b`, all 10 dataset authors, 3 Nov 2
 
 - `tools/test_workflow.mjs` runs **42 checks against a real n8n 2.45 (all passing)** with `tools/ai_stub.mjs` standing in for the AI: all 10 dataset authors (overdue, pending, below-minimum, fully paid, in production), duplicate request / duplicate author, retry after failure, missing and wrong key, invalid payload, AI 500, AI inventing ₹5,000, AI returning non-JSON. An accidental run with the stub stopped also showed the "AI unreachable" path end to end: every request came back `Failed` with `connect ECONNREFUSED` instead of hanging.
 - The real model was run on all 10 authors through the same prompt and fact-check (numbers above).
-- Bubble: the checklist at the end of the build guide (data isolation per author, filters, single/bulk send, failure states).
+- **Live, end to end (3 Nov 2026, Bubble test version → n8n Cloud → Groq):**
+  - Single *Generate & Send* (Ananya, overdue): the log row appears as **Pending** at once and turns **Success** a few seconds later with the AI email ("…this is on us. We have escalated this to our finance team… update within 48 hours").
+  - Bulk send to the 9 authors with pending royalties: every author got a **Success** row with their own email, sent one after another.
+  - Idempotency: clicking again for an author within 120 s gives a **Duplicate** row ("Not sent again…") and no AI call.
+  - Failure path: the first ever call ran with a wrong AI key; n8n answered `Failed` / stage `ai_api` / "AI service call failed (HTTP 401)…" and nothing hung.
+  - Data isolation: logged in as Ananya, the dashboard shows only her book and totals; the admin pages redirect authors back to their dashboard.
 
 ## 8. Running the n8n side yourself
 
@@ -108,17 +114,26 @@ Measured on the real model (Groq `gpt-oss-120b`, all 10 dataset authors, 3 Nov 2
    - *AI API key (Authorization: Bearer)*: name `Authorization`, value `Bearer <your Groq/OpenAI key>`.
    - (optional) SMTP account for the bonus email node.
 3. Open **Webhook from Bubble** and **Call AI** and pick the matching credential in each (imported workflows keep the credential *names* but never the secrets). Change *Settings (edit me)* only for another model/provider.
-4. **Activate / Publish** the workflow and copy the **production** webhook URL (`…/webhook/bookleaf/royalty-summary`, not the `webhook-test` one) into Bubble's API Connector.
+4. **Publish** the workflow (n8n 2.x: *Publish*; the two optional nodes, SMTP and the Bubble Data-API callback, ship disabled because n8n will not publish nodes without credentials) and copy the **production** webhook URL (`…/webhook/bookleaf/royalty-summary`, not the `webhook-test` one) into Bubble's API Connector.
 5. Quick test without Bubble: `node tools/payload.mjs AUTH003 > p.json` then `curl -X POST <url> -H "X-BookLeaf-Key: <secret>" -H "Content-Type: application/json" -d @p.json`.
 
 ## 9. Learning log
 
-`<FILL during the build: what was new in Bubble, what you tried, what did not work and how you worked around it — e.g. CSV link import, privacy-rule debugging with "Run as", JSON-safe formatting in the API Connector, recursion with Schedule custom event for bulk.>`
+This was my first Bubble app. What I learned along the way, including what did not work the first time:
+
+- **Bubble Free plan limits shape the design.** No Data API / Workflow API (so n8n cannot call back into Bubble; the result travels in the HTTP response), no CSV upload (data entered via App data → New entry), no live deployment (the app runs on the `version-test` URL), and only frontend scheduled custom events (so bulk send is a self-scheduling custom event that runs while the admin keeps the page open).
+- **Links are references, not ids.** My first data entry stored Book → Author links as bare unique ids. Every search on the link (`author = Current page's Author`) silently returned nothing, and a "below ₹1,000 minimum" badge appeared for an overdue book because "author's total pending" was empty, and empty < 1000. Re-linking the records fixed both. Lesson: when a list is unexpectedly empty, check the link fields in App data before suspecting privacy rules.
+- **Privacy rules first, pages second.** Each type starts with nothing visible; authors match on email, admins on role. That made the author dashboard safe by default, and it is why the admin pages also have a page-load redirect only as a convenience.
+- **API Connector initialisation fixes the response shape.** Bubble learns field types from one sample response, so success and failure answers from n8n were made to share the same keys (`stage`/`error_message` on success, `subject`/`body`/`warnings_text` on failure). An empty list (`warnings: []`) is not typed by Bubble, so n8n also returns `warnings_text`.
+- **JSON-safe formatting.** The request body is built in Bubble with `:formatted as JSON-safe` for texts and dates; numbers do not have that operator and are inserted as plain numbers. Dates arrive as Indian midnight in UTC (`2025-10-14T18:30:00Z`), which the n8n facts node rounds back to the calendar date.
+- **"Create a new thing" vs "Make changes".** In my first version the new Notification Log row kept its status updates but lost its initial author/mode, so it did not show on the author's page; the create step's initial values were not being saved. Testing the author page, not just the n8n side, caught it.
+- **n8n Cloud publishing.** n8n 2.x keeps edits as a draft until *Publish*, and it refuses to publish while any node lacks credentials, so the optional SMTP and Data-API nodes ship disabled.
+- **How the build was done.** I built the app with an AI assistant (Claude). Besides the Bubble editor UI, it set up the data types, pages and workflows through the editor's own internal JSON model; everything is ordinary Bubble data you can open and edit in the editor. The n8n workflow and its tests are generated from the JavaScript in `n8n/src/`.
 
 ## 10. Repository layout
 
 ```
-data/        bookleaf_sample_data.json + the CSVs imported into Bubble (authors, books, payouts)
+data/        bookleaf_sample_data.json + CSVs of the same data (authors, books, payouts; on the Free plan they were entered via App data)
 docs/        BUBBLE_BUILD_GUIDE.md (schema, privacy rules, pages, workflows, test checklist), SAMPLE_EMAILS.md
 n8n/         bookleaf-royalty-summary.json (the export) and src/ (each Code node as a .js file)
 tools/       make_csv.py, build_workflow.py, payload.mjs, ai_stub.mjs, test_workflow.mjs

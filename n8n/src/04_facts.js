@@ -6,11 +6,16 @@ const { settings, request: r } = item;
 
 const DAY = 86_400_000;
 const num = (v) => (v == null || v === '' ? 0 : Number(v));
-// Bubble may send ISO dates ("2024-07-05") or its own formats ("Jul 5, 2024 12:00 am"); normalise both to UTC midnight.
+// Bubble may send plain dates ("2024-07-05"), full timestamps or its own formats; normalise all to UTC midnight.
+// Bubble stores a date as local midnight of the app's timezone, e.g. 15 Oct 2025 in India arrives as
+// "2025-10-14T18:30:00Z" (or epoch ms). Rounding a timestamp to the nearest UTC day recovers the calendar date
+// for any offset within ±12 h, so the email never shows a date one day early.
 const toDate = (v) => {
   if (v == null || v === '') return null;
   const s = String(v).trim();
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return new Date(s.slice(0, 10) + 'T00:00:00Z');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + 'T00:00:00Z');
+  const ms = /^\d{11,}$/.test(s) ? Number(s) : (/^\d{4}-\d{2}-\d{2}T/.test(s) ? Date.parse(s) : NaN);
+  if (!Number.isNaN(ms)) return new Date(Math.round(ms / DAY) * DAY);
   const t = new Date(s);
   return Number.isNaN(t.getTime()) ? null : new Date(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()));
 };

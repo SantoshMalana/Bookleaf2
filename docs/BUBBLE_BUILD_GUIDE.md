@@ -68,6 +68,8 @@ Why this shape: Author 1→N Book, Book 1→N Payout (the dataset only has the l
 
 ## Part 3 — Import the dataset (30 min)
 
+> **Free plan note (what actually happened in this build).** Bubble's CSV upload is a paid feature ("Upgrade to a paid plan to gain the ability to upload CSV files"), so the live app's data was entered through **App data → New entry** instead: 10 Authors, 18 Books, 12 Payouts, 1 AppSettings row, with the same values as the CSVs. If you do this by hand, set the link fields (Book → author, Payout → book/author) by picking the record in the dropdown. A link stored as a bare unique id does not resolve; Bubble stores links as references, and a search on `author = Current page's Author` silently returns nothing if the links are broken. The CSV steps below are for a paid plan.
+
 The files are in `data/`: `authors.csv`, `books.csv`, `payouts.csv`. Order matters (books link to authors).
 
 1. Data → **App data** → choose type **Author** → **Upload** → pick `authors.csv` → map each column to the field with the same name (`payout_status` → PayoutStatus). Dates are `YYYY-MM-DD`. Upload. **Check:** 10 Authors.

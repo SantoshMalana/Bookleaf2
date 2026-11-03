@@ -16,9 +16,12 @@ return [{
       subject: email.subject,
       body: email.body,
       warnings,
+      warnings_text: warnings.join(' | '), // the same warnings as one text field, which is easy to store in Bubble
       email_sent: emailSent,
       sent_to: emailSent ? ctx.settings.test_recipient : null,
       model: email.model,
+      stage: '',          // same keys as the failure response, so Bubble's API Connector sees one shape
+      error_message: '',
       completed_at: new Date().toISOString(),
     },
   },
