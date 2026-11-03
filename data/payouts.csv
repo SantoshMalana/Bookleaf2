@@ -1,0 +1,13 @@
+payout_id,book,author,author_email,payout_date,amount_paid_to_date,note
+PAY-BK001,BK001,AUTH001,priya.sharma@email.com,2025-10-15,8400,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK002,BK002,AUTH001,priya.sharma@email.com,2025-12-01,7938,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK003,BK003,AUTH002,rohit.kapoor@email.com,2025-09-01,21000,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK004,BK004,AUTH002,rohit.kapoor@email.com,2025-11-15,50000,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK006,BK006,AUTH004,vikram.joshi@email.com,2025-08-20,10000,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK007,BK007,AUTH004,vikram.joshi@email.com,2025-12-01,1845,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK008,BK008,AUTH005,meera.nair@email.com,2025-12-01,14240,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK009,BK009,AUTH005,meera.nair@email.com,2025-10-15,8000,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK011,BK011,AUTH007,sneha.kulkarni@email.com,2025-11-15,35000,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK012,BK012,AUTH007,sneha.kulkarni@email.com,2025-10-15,18000,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK014,BK014,AUTH008,farhan.sheikh@email.com,2025-12-01,3120,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
+PAY-BK017,BK017,AUTH010,diya.chatterjee@email.com,2025-11-15,25000,Latest payout on record. The dataset holds the cumulative amount paid and the latest payout date only.
