@@ -21,10 +21,12 @@ try {
 if (!out || typeof out.subject !== 'string' || typeof out.body !== 'string') return fail('The AI response was not the expected JSON {subject, body}.', content);
 
 // Normalise: plain text, plain spaces (reasoning models like U+202F narrow spaces), no markdown emphasis.
-const clean = (s) => s.replace(/[    ]/g, ' ').replace(/[‐‑]/g, '-').replace(/\*\*|__/g, '').replace(/^#+\s*/gm, '').trim();
+const clean = (s) => s.replace(/[    ]/g, ' ').replace(/[‐‑]/g, '-').replace(/\*\*|__/g, '').replace(/^#+\s*/gm, '').replace(/(₹\s?\d{1,3}),\s+(?=\d{3}\b)/g, '$1,').trim(); // also repairs "₹3, 570" → "₹3,570"
 const subject = clean(out.subject).slice(0, 120);
 let body = clean(out.body);
 if (body.length < 200) return fail('The AI email body is too short to be a useful summary.', body);
+// A reasoning model can 'think aloud' in its answer ("₹3,574? Wait… ₹3,570"). That must never reach an author.
+if (/\b(Wait|Actually)\b|₹\s?[\d,]+\s*\?/.test(body)) return fail('The AI draft corrected itself mid-email ("Wait…" / "Actually…"). Nothing was sent.', body);
 
 // ── fact check ──
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];

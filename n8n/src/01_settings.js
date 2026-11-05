@@ -6,7 +6,7 @@ const SETTINGS = {
   // AI provider (any OpenAI-compatible Chat Completions API).
   ai_base_url: 'https://api.groq.com/openai/v1', // OpenAI: https://api.openai.com/v1
   ai_model: 'openai/gpt-oss-120b',               // OpenAI: gpt-4o-mini
-  ai_max_tokens: 2000,
+  ai_max_tokens: 3000,
 
   // Knowledge Base rules (Assignment 1) used to compute facts the AI must quote, never invent.
   payout_threshold_inr: 1000, // minimum payout, applied to the author's whole account

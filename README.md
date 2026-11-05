@@ -8,7 +8,7 @@ Assignment 2 of 2. A **Bubble.io** app where authors see their royalties and adm
 | **Bubble editor** | https://bubble.io/page?id=santosh24x |
 | **n8n workflow export** | [`n8n/bookleaf-royalty-summary.json`](n8n/bookleaf-royalty-summary.json) |
 | **Screen recording (4 min)** | `<VIDEO_URL>` |
-| **Author login** | `ananya.reddy@email.com` / `Author@123` (any other dataset author can create an account with their dataset email via *Create my author account*) |
+| **Author login** | `ananya.reddy@email.com` / `Author@123` (all 10 dataset authors have accounts with this password, e.g. `rohit.kapoor@email.com`) |
 | **Admin login** | `admin@bookleaf.example` / `Admin@123` |
 
 ---
@@ -127,6 +127,7 @@ This was my first Bubble app. What I learned along the way, including what did n
 - **API Connector initialisation fixes the response shape.** Bubble learns field types from one sample response, so success and failure answers from n8n were made to share the same keys (`stage`/`error_message` on success, `subject`/`body`/`warnings_text` on failure). An empty list (`warnings: []`) is not typed by Bubble, so n8n also returns `warnings_text`.
 - **JSON-safe formatting.** The request body is built in Bubble with `:formatted as JSON-safe` for texts and dates; numbers do not have that operator and are inserted as plain numbers. Dates arrive as Indian midnight in UTC (`2025-10-14T18:30:00Z`), which the n8n facts node rounds back to the calendar date.
 - **"Create a new thing" vs "Make changes".** In my first version the new Notification Log row kept its status updates but lost its initial author/mode, so it did not show on the author's page; the create step's initial values were not being saved. Testing the author page, not just the n8n side, caught it.
+- **The fact-check earned its place in a live test (5 Nov).** With `reasoning_effort: low`, the model twice produced a bad draft for one author: once it "thought aloud" inside the email ("pending ₹3,574? Wait… ₹3,570"), once it wrote "₹3, 570". Both were rejected (status **Failed**, "nothing was sent") and the retry was clean. I then moved the model to `reasoning_effort: medium` (with a larger token budget), added a prompt rule against self-corrections and spaces inside numbers, taught the checker to repair "₹3, 570" and to reject any "Wait…/Actually…" draft. Re-test: 9/9 authors **Success** with accurate emails.
 - **n8n Cloud publishing.** n8n 2.x keeps edits as a draft until *Publish*, and it refuses to publish while any node lacks credentials, so the optional SMTP and Data-API nodes ship disabled.
 - **How I worked.** I used an AI coding assistant (Claude) as a pair-builder, the same way I would use one in a team. I set the design decisions: the schema, the privacy model, payload-in-webhook instead of the Data API, code-computed facts plus a fact-check around the AI, and the as-of date. I then tested every flow in the live app myself. The assistant did much of the repetitive editor work (data entry, page layout, wiring workflows) through Bubble's editor, so the result is an ordinary Bubble app: every page, workflow and privacy rule can be opened and edited in the editor. The n8n workflow is generated from the readable JavaScript in `n8n/src/` and covered by the tests in `tools/`. The bugs in this log were found by testing, not by reading code.
 

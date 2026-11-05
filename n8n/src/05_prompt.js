@@ -30,6 +30,7 @@ WHAT THE EMAIL MUST CONTAIN
 HARD RULES
 - Every amount and date you write must appear in FACTS. Never calculate, estimate or invent figures, dates, percentages, links or promises. Never invent per-platform sales, costs or bank details.
 - Write amounts exactly as FACTS shows them (e.g. ₹11,970). Write dates in words, e.g. 14 February 2026.
+- Decide every figure before you write. Write each amount once, exactly as FACTS shows it, with no spaces inside the number (₹3,570, never ₹3, 570). Never question, revise or correct yourself in the email text: no "Wait", "Actually" or a question mark after a figure.
 - Plain text only: no markdown, no asterisks, no headings with #. Simple lines starting with "- " are fine for the per-book list.
 - About 90–300 words in the body: shorter for one book, longer when there is more to explain.
 - Reply with JSON only: {"subject": "...", "body": "..."}. The subject is under 80 characters, mentions royalties and is specific to this author.`;
@@ -46,7 +47,8 @@ const body = {
     { role: 'user', content: user },
   ],
 };
-// gpt-oss models are reasoning models: keep hidden reasoning short so the visible answer always fits.
-if (/gpt-oss/i.test(settings.ai_model)) body.reasoning_effort = 'low';
+// gpt-oss models are reasoning models. 'low' effort sometimes made the model think aloud inside the email
+// ("₹3,574? Wait… ₹3,570"); 'medium' keeps the reasoning hidden and still fits in ai_max_tokens.
+if (/gpt-oss/i.test(settings.ai_model)) body.reasoning_effort = 'medium';
 
 return [{ json: { ...item, ai_url: `${settings.ai_base_url.replace(/\/$/, '')}/chat/completions`, ai_request: body, prompt_chars: SYSTEM.length + user.length } }];
