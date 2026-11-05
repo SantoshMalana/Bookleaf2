@@ -7,7 +7,7 @@ Assignment 2 of 2. A **Bubble.io** app where authors see their royalties and adm
 | **Bubble app (test version, Free plan)** | https://santosh24x.bubbleapps.io/version-test |
 | **Bubble editor** | https://bubble.io/page?id=santosh24x |
 | **n8n workflow export** | [`n8n/bookleaf-royalty-summary.json`](n8n/bookleaf-royalty-summary.json) |
-| **Screen recording (4 min)** | `<VIDEO_URL>` |
+| **Screen recording (4 min)** | [Watch on Google Drive](https://drive.google.com/file/d/1f8JmJzNlz834JAugNlvteYEU2M_WdadI/view?usp=sharing) |
 | **Author login** | `ananya.reddy@email.com` / `Author@123` (all 10 dataset authors have accounts with this password, e.g. `rohit.kapoor@email.com`) |
 | **Admin login** | `admin@bookleaf.example` / `Admin@123` |
 
